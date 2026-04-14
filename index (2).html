@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ruleta">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F6E56" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#04342C" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>Contador Ruleta</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #FAFAF7;
+  color: #1A1A1A;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+body {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  min-height: 100vh;
+}
+@media (prefers-color-scheme: dark) {
+  html, body { background: #1A1A1A; color: #F1EFE8; }
+}
+.container { max-width: 600px; margin: 0 auto; padding: 16px; }
+h1 { font-size: 20px; font-weight: 500; margin: 0 0 4px; }
+h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
+.subtitle { font-size: 13px; opacity: 0.65; margin: 0 0 20px; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.stat-card {
+  background: rgba(0,0,0,0.04);
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+@media (prefers-color-scheme: dark) { .stat-card { background: rgba(255,255,255,0.06); } }
+.stat-label { font-size: 10px; opacity: 0.65; margin: 0 0 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+.stat-value { font-size: 18px; font-weight: 500; margin: 0; }
+.num-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 16px;
+}
+.num-btn {
+  position: relative;
+  aspect-ratio: 1;
+  border: 0.5px solid rgba(0,0,0,0.15);
+  border-radius: 8px;
+  background: #FFF;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  font-family: inherit;
+  transition: transform 0.08s;
+  color: inherit;
+  touch-action: manipulation;
+}
+.num-btn:active { transform: scale(0.92); }
+@media (prefers-color-scheme: dark) {
+  .num-btn { background: #2C2C2A; border-color: rgba(255,255,255,0.12); color: #F1EFE8; }
+}
+.num-btn.red { background: #FCEBEB; color: #501313; }
+.num-btn.black { background: #2C2C2A; color: #F1EFE8; }
+.num-btn.green { background: #EAF3DE; color: #173404; }
+@media (prefers-color-scheme: dark) {
+  .num-btn.red { background: #501313; color: #FCEBEB; }
+  .num-btn.black { background: #0D0D0C; color: #F1EFE8; }
+  .num-btn.green { background: #173404; color: #EAF3DE; }
+}
+.num-btn.hot { box-shadow: inset 0 0 0 2px #BA7517; }
+.num-btn.cold { box-shadow: inset 0 0 0 2px #378ADD; }
+.num-val { font-size: 15px; font-weight: 500; line-height: 1; }
+.num-cnt { font-size: 10px; opacity: 0.75; margin-top: 2px; line-height: 1; }
+.dec-btn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.2);
+  color: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: inherit;
+}
+.num-btn.black .dec-btn, .num-btn.red .dec-btn { background: rgba(0,0,0,0.3); }
+.btn-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 14px;
+  border: 0.5px solid rgba(0,0,0,0.2);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(0.97); }
+@media (prefers-color-scheme: dark) { .btn { border-color: rgba(255,255,255,0.2); } }
+.verdict {
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.verdict.neutral { background: #E6F1FB; color: #042C53; }
+.verdict.warn { background: #E1F5EE; color: #04342C; }
+.verdict.alert { background: #FAEEDA; color: #412402; }
+@media (prefers-color-scheme: dark) {
+  .verdict.neutral { background: #042C53; color: #B5D4F4; }
+  .verdict.warn { background: #04342C; color: #9FE1CB; }
+  .verdict.alert { background: #412402; color: #FAC775; }
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  background: rgba(0,0,0,0.05);
+  padding: 3px;
+  border-radius: 8px;
+}
+@media (prefers-color-scheme: dark) { .tabs { background: rgba(255,255,255,0.06); } }
+.tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: inherit;
+}
+.tab.active { background: #FFF; font-weight: 500; }
+@media (prefers-color-scheme: dark) { .tab.active { background: #444441; } }
+.chart-container {
+  background: rgba(0,0,0,0.03);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 16px;
+  min-height: 200px;
+}
+@media (prefers-color-scheme: dark) { .chart-container { background: rgba(255,255,255,0.04); } }
+canvas { max-width: 100%; height: auto; display: block; }
+.install-hint {
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+  padding: 12px;
+  margin-top: 20px;
+  border-top: 0.5px solid rgba(0,0,0,0.1);
+}
+@media (prefers-color-scheme: dark) { .install-hint { border-color: rgba(255,255,255,0.1); } }
+details { margin-bottom: 16px; font-size: 13px; opacity: 0.8; }
+summary { cursor: pointer; padding: 6px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Contador Ruleta</h1>
+<p class="subtitle">Black Pearl · análisis de sesgo</p>
+
+<div class="stats-grid">
+<div class="stat-card">
+<p class="stat-label">Total</p>
+<p class="stat-value" id="statTotal">0</p>
+</div>
+<div class="stat-card">
+<p class="stat-label">Esperado</p>
+<p class="stat-value" id="statExp">0</p>
+</div>
+<div class="stat-card">
+<p class="stat-label">Caliente</p>
+<p class="stat-value" id="statHot">—</p>
+</div>
+<div class="stat-card">
+<p class="stat-label">Frío</p>
+<p class="stat-value" id="statCold">—</p>
+</div>
+</div>
+
+<div class="tabs">
+<button class="tab active" data-tab="grid">Tapete</button>
+<button class="tab" data-tab="chart">Gráfica</button>
+<button class="tab" data-tab="trend">Tendencia</button>
+</div>
+
+<div id="tab-grid">
+<div class="num-grid" id="grid"></div>
+</div>
+
+<div id="tab-chart" style="display:none;">
+<div class="chart-container">
+<canvas id="barChart" width="600" height="400"></canvas>
+</div>
+</div>
+
+<div id="tab-trend" style="display:none;">
+<div class="chart-container">
+<canvas id="trendChart" width="600" height="400"></canvas>
+<p style="font-size:12px;opacity:0.65;margin:8px 0 0;text-align:center;" id="trendLabel">Evolución de los 5 números más frecuentes</p>
+</div>
+</div>
+
+<div class="btn-row">
+<button class="btn" id="undoBtn">Deshacer</button>
+<button class="btn" id="newSessionBtn">Nueva sesión</button>
+<button class="btn" id="resetBtn">Borrar todo</button>
+</div>
+
+<div class="verdict neutral" id="verdict">
+Empieza a registrar giros para ver el análisis estadístico.
+</div>
+
+<details>
+<summary>Cómo se interpretan los colores</summary>
+<p>Borde ámbar = número "caliente" (aparece más de lo esperado). Borde azul = número "frío" (aparece menos). Solo aparecen con 100+ giros y desviación significativa (2+ σ).</p>
+</details>
+
+<p class="install-hint" id="installHint">
+Para instalar como app: iPhone → Compartir → Añadir a pantalla de inicio. Android → menú → Instalar app.
+</p>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
