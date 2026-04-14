@@ -42,6 +42,53 @@ h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
   gap: 6px;
   margin-bottom: 16px;
 }
+.stats-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.hot-cold-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.hc-card {
+  border-radius: 10px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+.hc-hot { background: #FAEEDA; }
+.hc-cold { background: #E6F1FB; }
+@media (prefers-color-scheme: dark) {
+  .hc-hot { background: rgba(186,117,23,0.18); }
+  .hc-cold { background: rgba(55,138,221,0.18); }
+}
+.hc-label {
+  font-size: 10px;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 500;
+}
+.hc-hot .hc-label { color: #854F0B; }
+.hc-cold .hc-label { color: #042C53; }
+@media (prefers-color-scheme: dark) {
+  .hc-hot .hc-label { color: #FAC775; }
+  .hc-cold .hc-label { color: #B5D4F4; }
+}
+.hc-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.hc-pill {
+  background: rgba(255,255,255,0.55);
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-color-scheme: dark) {
+  .hc-pill { background: rgba(0,0,0,0.3); }
+}
 .stat-card {
   background: rgba(0,0,0,0.04);
   border-radius: 10px;
@@ -191,22 +238,25 @@ summary { cursor: pointer; padding: 6px 0; }
 <h1>Contador Ruleta</h1>
 <p class="subtitle">Black Pearl · análisis de sesgo</p>
 
-<div class="stats-grid">
+<div class="stats-grid stats-grid-2">
 <div class="stat-card">
-<p class="stat-label">Total</p>
+<p class="stat-label">Total giros</p>
 <p class="stat-value" id="statTotal">0</p>
 </div>
 <div class="stat-card">
-<p class="stat-label">Esperado</p>
+<p class="stat-label">Esperado/núm</p>
 <p class="stat-value" id="statExp">0</p>
 </div>
-<div class="stat-card">
-<p class="stat-label">Caliente</p>
-<p class="stat-value" id="statHot">—</p>
 </div>
-<div class="stat-card">
-<p class="stat-label">Frío</p>
-<p class="stat-value" id="statCold">—</p>
+
+<div class="hot-cold-grid">
+<div class="hc-card hc-hot">
+<p class="hc-label">Más calientes</p>
+<div class="hc-list" id="hotList">—</div>
+</div>
+<div class="hc-card hc-cold">
+<p class="hc-label">Más fríos</p>
+<div class="hc-list" id="coldList">—</div>
 </div>
 </div>
 

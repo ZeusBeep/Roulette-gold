@@ -128,13 +128,21 @@
     document.getElementById('statTotal').textContent = total;
     document.getElementById('statExp').textContent = expected.toFixed(1);
 
-    let hotN = -1, hotC = -1, coldN = -1, coldC = Infinity;
-    for (let i = 0; i <= 36; i++) {
-      if (counts[i] > hotC) { hotC = counts[i]; hotN = i; }
-      if (counts[i] < coldC) { coldC = counts[i]; coldN = i; }
+    const ranked = [];
+    for (let i = 0; i <= 36; i++) ranked.push({ n: i, c: counts[i] });
+    ranked.sort((a, b) => b.c - a.c);
+
+    const hotList = document.getElementById('hotList');
+    const coldList = document.getElementById('coldList');
+    if (total === 0) {
+      hotList.innerHTML = '<span style="opacity:0.5;">—</span>';
+      coldList.innerHTML = '<span style="opacity:0.5;">—</span>';
+    } else {
+      const topHot = ranked.slice(0, 4);
+      const topCold = ranked.slice(-4).reverse();
+      hotList.innerHTML = topHot.map(r => '<span class="hc-pill">' + r.n + '·' + r.c + '</span>').join('');
+      coldList.innerHTML = topCold.map(r => '<span class="hc-pill">' + r.n + '·' + r.c + '</span>').join('');
     }
-    document.getElementById('statHot').textContent = total > 0 ? hotN + '·' + hotC : '—';
-    document.getElementById('statCold').textContent = total > 0 ? coldN + '·' + coldC : '—';
 
     for (let i = 0; i <= 36; i++) {
       const cntEl = document.getElementById('cnt-' + i);
